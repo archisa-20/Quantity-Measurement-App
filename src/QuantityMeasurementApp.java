@@ -3,41 +3,31 @@ public class QuantityMeasurementApp {
     // =========================
     // UC5: Conversion
     // =========================
-    public static double convert(double value, LengthUnit sourceUnit, LengthUnit targetUnit) {
-        validate(value, sourceUnit, targetUnit);
+    public static double convert(double value, LengthUnit source, LengthUnit target) {
+        validate(value, source, target);
 
-        if (sourceUnit == targetUnit) {
+        if (source == target) {
             return round(value);
         }
 
-        double baseValue = value * sourceUnit.getConversionFactor();
-        double result = baseValue / targetUnit.getConversionFactor();
+        double baseValue = value * source.getConversionFactor();
+        double result = baseValue / target.getConversionFactor();
 
         return round(result);
     }
 
-    public static double convert(QuantityLength length, LengthUnit targetUnit) {
-        if (length == null) {
-            throw new IllegalArgumentException("QuantityLength cannot be null");
-        }
-        return convert(length.getValue(), length.getUnit(), targetUnit);
-    }
-
     // =========================
-    // UC6: Addition
+    // UC6 + UC7: Addition with explicit target unit
     // =========================
-    public static QuantityLength add(QuantityLength l1, QuantityLength l2, LengthUnit resultUnit) {
+    public static QuantityLength add(QuantityLength l1, QuantityLength l2, LengthUnit targetUnit) {
 
-        validateAddition(l1, l2, resultUnit);
+        validateAddition(l1, l2, targetUnit);
 
-        double l1Base = toBase(l1);
-        double l2Base = toBase(l2);
+        double baseSum = toBase(l1) + toBase(l2);
 
-        double sumBase = l1Base + l2Base;
+        double resultValue = fromBase(baseSum, targetUnit);
 
-        double resultValue = fromBase(sumBase, resultUnit);
-
-        return new QuantityLength(round(resultValue), resultUnit);
+        return new QuantityLength(round(resultValue), targetUnit);
     }
 
     // =========================
@@ -61,12 +51,12 @@ public class QuantityMeasurementApp {
         }
     }
 
-    private static void validateAddition(QuantityLength l1, QuantityLength l2, LengthUnit unit) {
+    private static void validateAddition(QuantityLength l1, QuantityLength l2, LengthUnit targetUnit) {
         if (l1 == null || l2 == null) {
             throw new IllegalArgumentException("Operands cannot be null");
         }
-        if (unit == null) {
-            throw new IllegalArgumentException("Result unit cannot be null");
+        if (targetUnit == null) {
+            throw new IllegalArgumentException("Target unit cannot be null");
         }
     }
 
