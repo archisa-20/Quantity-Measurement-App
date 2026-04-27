@@ -1,54 +1,80 @@
 public class QuantityMeasurementApp {
 
-    // Inner class representing Feet
+    // ---------------- FEET ----------------
     static class Feet {
         private final double value;
 
-        // Constructor
         public Feet(double value) {
             this.value = value;
         }
 
-        // Getter (optional)
         public double getValue() {
             return value;
         }
 
-        // Override equals method
         @Override
         public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
 
-            // Reflexive check
-            if (this == obj) {
-                return true;
-            }
-
-            // Null and type check
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
-            }
-
-            // Type casting
             Feet other = (Feet) obj;
-
-            // Compare using Double.compare
             return Double.compare(this.value, other.value) == 0;
         }
 
-        // Always override hashCode when equals is overridden
         @Override
         public int hashCode() {
             return Double.hashCode(value);
         }
     }
 
-    // Main method to test functionality
+    // ---------------- INCHES ----------------
+    static class Inches {
+        private final double value;
+
+        public Inches(double value) {
+            this.value = value;
+        }
+
+        public double getValue() {
+            return value;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+
+            Inches other = (Inches) obj;
+            return Double.compare(this.value, other.value) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            return Double.hashCode(value);
+        }
+    }
+
+    // ----------- STATIC METHODS (as required) -----------
+
+    public static boolean compareFeet(double v1, double v2) {
+        Feet f1 = new Feet(v1);
+        Feet f2 = new Feet(v2);
+        return f1.equals(f2);
+    }
+
+    public static boolean compareInches(double v1, double v2) {
+        Inches i1 = new Inches(v1);
+        Inches i2 = new Inches(v2);
+        return i1.equals(i2);
+    }
+
+    // ---------------- MAIN ----------------
     public static void main(String[] args) {
-        Feet value1 = new Feet(1.0);
-        Feet value2 = new Feet(1.0);
 
-        boolean result = value1.equals(value2);
+        System.out.println("Feet comparison (1.0, 1.0): " +
+                compareFeet(1.0, 1.0));
 
-        System.out.println("Are values equal? " + result);
+        System.out.println("Inches comparison (1.0, 1.0): " +
+                compareInches(1.0, 1.0));
     }
 }
