@@ -1,78 +1,47 @@
 public class QuantityMeasurementApp {
 
-    // ---------------- UNIT ENUM ----------------
-    public enum LengthUnit {
+    /**
+     * Converts a value from one length unit to another using base-unit normalization.
+     *
+     * Formula:
+     * result = value × (sourceFactor / targetFactor)
+     */
+    public static double convert(double value, LengthUnit sourceUnit, LengthUnit targetUnit) {
 
-        FEET(1.0),
-        INCH(1.0 / 12.0),
-        YARD(3.0),
-        CENTIMETER(0.0328084);
+        validateInput(value, sourceUnit, targetUnit);
 
-        private final double conversionToFeet;
-
-        LengthUnit(double conversionToFeet) {
-            this.conversionToFeet = conversionToFeet;
+        if (sourceUnit == targetUnit) {
+            return value;
         }
 
-        public double toFeet(double value) {
-            return value * conversionToFeet;
+        double sourceFactor = sourceUnit.getConversionFactor();
+        double targetFactor = targetUnit.getConversionFactor();
+
+        double result = value * (sourceFactor / targetFactor);
+
+        return round(result);
+    }
+
+    /**
+     * Overloaded method: converts using QuantityLength object (if used in UC4 model).
+     */
+    public static double convert(QuantityLength length, LengthUnit targetUnit) {
+        if (length == null) {
+            throw new IllegalArgumentException("Length cannot be null");
+        }
+        return convert(length.getValue(), length.getUnit(), targetUnit);
+    }
+
+    private static void validateInput(double value, LengthUnit source, LengthUnit target) {
+        if (source == null || target == null) {
+            throw new IllegalArgumentException("Units cannot be null");
+        }
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            throw new IllegalArgumentException("Invalid numeric value");
         }
     }
 
-    // ---------------- CORE CLASS ----------------
-    static class QuantityLength {
-
-        private final double value;
-        private final LengthUnit unit;
-
-        public QuantityLength(double value, LengthUnit unit) {
-            if (unit == null) {
-                throw new IllegalArgumentException("Unit cannot be null");
-            }
-            this.value = value;
-            this.unit = unit;
-        }
-
-        private double inFeet() {
-            return unit.toFeet(value);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-
-            if (this == obj) return true;
-
-            if (obj == null || getClass() != obj.getClass()) return false;
-
-            QuantityLength other = (QuantityLength) obj;
-
-            return Double.compare(this.inFeet(), other.inFeet()) == 0;
-        }
-
-        @Override
-        public int hashCode() {
-            return Double.hashCode(inFeet());
-        }
-    }
-
-    // ---------------- PUBLIC API ----------------
-    public static boolean compare(double v1, LengthUnit u1,
-                                  double v2, LengthUnit u2) {
-
-        return new QuantityLength(v1, u1)
-                .equals(new QuantityLength(v2, u2));
-    }
-
-    // ---------------- MAIN METHOD ----------------
-    public static void main(String[] args) {
-
-        System.out.println("1 YARD = 3 FEET: " +
-                compare(1.0, LengthUnit.YARD, 3.0, LengthUnit.FEET));
-
-        System.out.println("1 YARD = 36 INCH: " +
-                compare(1.0, LengthUnit.YARD, 36.0, LengthUnit.INCH));
-
-        System.out.println("1 CM = 0.393701 INCH: " +
-                compare(1.0, LengthUnit.CENTIMETER, 0.393701, LengthUnit.INCH));
+    private static double round(double value) {
+        return Math.round(value * 1_000_000d) / 1_000_000d;
     }
 }
