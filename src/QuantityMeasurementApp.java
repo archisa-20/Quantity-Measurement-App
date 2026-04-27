@@ -1,43 +1,72 @@
 public class QuantityMeasurementApp {
 
-    /**
-     * Converts a value from one length unit to another using base-unit normalization.
-     *
-     * Formula:
-     * result = value × (sourceFactor / targetFactor)
-     */
+    // =========================
+    // UC5: Conversion
+    // =========================
     public static double convert(double value, LengthUnit sourceUnit, LengthUnit targetUnit) {
-
-        validateInput(value, sourceUnit, targetUnit);
+        validate(value, sourceUnit, targetUnit);
 
         if (sourceUnit == targetUnit) {
-            return value;
+            return round(value);
         }
 
-        double sourceFactor = sourceUnit.getConversionFactor();
-        double targetFactor = targetUnit.getConversionFactor();
-
-        double result = value * (sourceFactor / targetFactor);
+        double baseValue = value * sourceUnit.getConversionFactor();
+        double result = baseValue / targetUnit.getConversionFactor();
 
         return round(result);
     }
 
-    /**
-     * Overloaded method: converts using QuantityLength object (if used in UC4 model).
-     */
     public static double convert(QuantityLength length, LengthUnit targetUnit) {
         if (length == null) {
-            throw new IllegalArgumentException("Length cannot be null");
+            throw new IllegalArgumentException("QuantityLength cannot be null");
         }
         return convert(length.getValue(), length.getUnit(), targetUnit);
     }
 
-    private static void validateInput(double value, LengthUnit source, LengthUnit target) {
+    // =========================
+    // UC6: Addition
+    // =========================
+    public static QuantityLength add(QuantityLength l1, QuantityLength l2, LengthUnit resultUnit) {
+
+        validateAddition(l1, l2, resultUnit);
+
+        double l1Base = toBase(l1);
+        double l2Base = toBase(l2);
+
+        double sumBase = l1Base + l2Base;
+
+        double resultValue = fromBase(sumBase, resultUnit);
+
+        return new QuantityLength(round(resultValue), resultUnit);
+    }
+
+    // =========================
+    // Helpers
+    // =========================
+
+    private static double toBase(QuantityLength length) {
+        return length.getValue() * length.getUnit().getConversionFactor();
+    }
+
+    private static double fromBase(double baseValue, LengthUnit unit) {
+        return baseValue / unit.getConversionFactor();
+    }
+
+    private static void validate(double value, LengthUnit source, LengthUnit target) {
         if (source == null || target == null) {
             throw new IllegalArgumentException("Units cannot be null");
         }
         if (Double.isNaN(value) || Double.isInfinite(value)) {
             throw new IllegalArgumentException("Invalid numeric value");
+        }
+    }
+
+    private static void validateAddition(QuantityLength l1, QuantityLength l2, LengthUnit unit) {
+        if (l1 == null || l2 == null) {
+            throw new IllegalArgumentException("Operands cannot be null");
+        }
+        if (unit == null) {
+            throw new IllegalArgumentException("Result unit cannot be null");
         }
     }
 
